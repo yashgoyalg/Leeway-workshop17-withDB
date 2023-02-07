@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/users')
 
-mongoose.connect(process.env.URI, { useNewUrlParser: true, useUnifiedTopology: true }, () => { 
+mongoose.connect('mongodb://127.0.0.1:27017/test', { useNewUrlParser: true, useUnifiedTopology: true }, () => { 
     console.log("DATABASE CONNECTED"); 
 }); 
 const db = mongoose.connection; 
@@ -11,11 +11,6 @@ db.once("open", function () {
      console.log("Connected to the database"); 
     });
 
-//Databse Connection
-// mongoose.connect('mongodb+srv://Yash:Yash@123@cluster0.6nq6czh.mongodb.net/test',{useNewUrlParser: true, useUnifiedTopology: true});
-// mongoose.connection.on("connected", () => {
-//     console.log("Datbase connected");
-// })
 
 //init server
 const app = express();
@@ -39,17 +34,16 @@ app.get('/users', async (req, res) => {
 //POST method
 app.post('/users', async (req, res) => {
     try {
-        const validate = await User.findOne({ username: req.username })
+        const validate = await User.findOne({ username: req.body.username })
+        console.log(validate, "invalid");
         if (!validate) {
             res.send("Invalid")
         }
-        else {
+        
             const user = new User({ username: req.body.username, password: req.body.password })
             await user.save();
             console.log("User Created");
             res.json(user);
-
-        }
     } catch (error) {
         console.log(error)
         res.status(500).send("Internal Server Error")
